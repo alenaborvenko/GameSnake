@@ -8,7 +8,10 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.Random;
 import javax.swing.JButton;
-
+/**
+ * Поле для игры в змейку и ее логика
+ * @author alenk
+ */
 public class GameFolder extends JPanel implements ActionListener {
 
     private final int SIZE = 320;
