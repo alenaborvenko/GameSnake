@@ -8,47 +8,49 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.Random;
 import javax.swing.JButton;
+import java.awt.Font;
+
+
 /**
  * Поле для игры в змейку и ее логика
+ *
  * @author alenk
  */
 public class GameFolder extends JPanel implements ActionListener {
 
-    private final int SIZE = 320;
-    private final int DOT_SIZE = 16;
-    private final int ALL_DOTS = 400;
+    private final int SIZE = 320; // размер экрана
+    private final int DOT_SIZE = 16; // размер ячейки
+    private final int ALL_DOTS = 400; //количество ячеек макс
     private Image dot;
     private Image apple;
-    private int appleX;
+    private int appleX; // координаты яблока
     private int appleY;
-    private int[] x = new int[ALL_DOTS];
+    private int[] x = new int[ALL_DOTS]; // координаты змейки
     private int[] y = new int[ALL_DOTS];
-    private int dots;
+    private int dots; //текущее количество яблок
     private Timer timer;
     private boolean left = false;
     private boolean right = true;
     private boolean up = false;
     private boolean down = false;
     private boolean inGame = true;
-    
-    private  JButton start,exit;
 
-
+    private JButton start, exit;
+//*********       Конструктор класса
     public GameFolder() {
-		//хоть треснию но беграунд не устанавливается!
-        //     setBackground(Color.black);
-         start = new JButton();
+
+        setBackground(Color.black);
+        start = new JButton();
         exit = new JButton();
         start.setText("Start Game");
         exit.setText("Exit");
 
         add(start, new FlowLayout(FlowLayout.LEFT));
         add(exit, new FlowLayout(FlowLayout.RIGHT));
-        start.setVisible(true);
-        exit.setVisible(true);
+        // с этой частотой перересовывается поле и создается новое яблоко
+        timer = new Timer(250, this);
         loadImages();
         initJPanel();
-
 
     }
 
@@ -56,6 +58,7 @@ public class GameFolder extends JPanel implements ActionListener {
 
         start.setVisible(true);
         exit.setVisible(true);
+        // если нажали на старт иницилизируем игру
         start.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -75,28 +78,31 @@ public class GameFolder extends JPanel implements ActionListener {
         dots = 3;
         inGame = true;
         for (int i = 0; i < dots; i++) {
+            //расположим змейку по оси х
             x[i] = 48 - i * DOT_SIZE;
             y[i] = 48;
         }
-        timer = new Timer(250,this);
+
         timer.start();
         createApple();
     }
 
     public void createApple() {
+        // рандомно создадим координаты яблоко
         appleX = new Random().nextInt(20) * DOT_SIZE;
         appleY = new Random().nextInt(20) * DOT_SIZE;
     }
 
     public void loadImages() {
-		// почему указывается полный путь????
-        ImageIcon iia = new ImageIcon("C:\\Users\\alenk\\OneDrive\\Рабочий стол\\GitHub\\SimpleGame\\New Folder\\Snake\\src\\snake\\apple.png");
+
+        ImageIcon iia = new ImageIcon("C:\\Users\\alenk\\OneDrive\\Рабочий стол\\GitHub\\Snake\\GameSnake\\Snake\\src\\snake\\apple.png");
         apple = iia.getImage();
-        ImageIcon iid = new ImageIcon("C:\\Users\\alenk\\OneDrive\\Рабочий стол\\GitHub\\SimpleGame\\New Folder\\Snake\\src\\snake\\dot.png");
+        ImageIcon iid = new ImageIcon("C:\\Users\\alenk\\OneDrive\\Рабочий стол\\GitHub\\Snake\\GameSnake\\Snake\\src\\snake\\dot.png");
         dot = iid.getImage();
     }
 
     @Override
+    @SuppressWarnings("empty-statement")
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (inGame) {
@@ -106,19 +112,19 @@ public class GameFolder extends JPanel implements ActionListener {
             }
         } else {
             String str = "Game Over";
-            // Font f = new Font("Arial",140,Font.BOLD);
-            g.setColor(Color.black);
-            //  g.setFont(f);
-            g.drawString(str, 125, SIZE / 2);
+            Font f = new Font("Arial", Font.BOLD, 15);
+            g.setColor(Color.white);
+            g.setFont(f);
+            g.drawString(str, 115, SIZE / 4);
             int score = 10 * dots;
             str = "Your score is " + score;
-            g.drawString(str, 125, SIZE / 4);
+            g.drawString(str, 100, SIZE / 2);
             //this.inGame = true;
-			//******* вот тут затык!!!! надо разобраться
+            timer.stop();;
             initJPanel();
         }
     }
-
+// описание движения
     public void move() {
         for (int i = dots; i > 0; i--) {
             x[i] = x[i - 1];
@@ -137,14 +143,14 @@ public class GameFolder extends JPanel implements ActionListener {
             y[0] += DOT_SIZE;
         }
     }
-
+// съели ли яблоко
     public void checkApple() {
         if (x[0] == appleX && y[0] == appleY) {
             dots++;
             createApple();
         }
     }
-
+// проверка на столкновения
     public void checkCollisions() {
         for (int i = dots; i > 0; i--) {
             if (i > 4 && x[0] == x[i] && y[0] == y[i]) {
@@ -173,16 +179,15 @@ public class GameFolder extends JPanel implements ActionListener {
             checkCollisions();
             move();
 
-        }
-        else{
+        } else {
             inGame = true;
             initGame();
-                addKeyListener(new FieldKeyListener());
-                setFocusable(true);
+            addKeyListener(new FieldKeyListener());
+            setFocusable(true);
         }
         repaint();
     }
-
+// обработка нажатия клавиш
     class FieldKeyListener extends KeyAdapter {
 
         @Override
